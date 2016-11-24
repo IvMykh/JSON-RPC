@@ -4,4 +4,3 @@ ServerSocketException::ServerSocketException(const char* message)
     : std::exception(message)
 {
 }
-

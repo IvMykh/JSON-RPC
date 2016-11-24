@@ -6,7 +6,7 @@ ServerSocket::ServerSocket(const int serverPortNumber)
     : serverPortNumber_(serverPortNumber),
       isSocketValid_(true)
 {
-    constructSocket(NULL);
+    constructSocket(0);
 }
 ServerSocket::ServerSocket(SOCKET socketHandle, const int serverPortNumber)
     : serverPortNumber_(serverPortNumber),
@@ -18,13 +18,6 @@ ServerSocket::ServerSocket(SOCKET socketHandle, const int serverPortNumber)
 ServerSocket::~ServerSocket()
 {
     closesocket(socketHandle_);
-
-    --instancesCount_;
-    if (instancesCount_ == 0)
-    {
-        WSACleanup();
-        isWsaStartup_ = false;
-    }
 }
 
 const int ServerSocket::ServerPortNumber() const
@@ -70,47 +63,38 @@ const ServerSocket ServerSocket::Accept() const
     return ServerSocket(newSHandle, serverPortNumber_);
 }
 
-const int ServerSocket::Receive(ServerSocket socket, char* clientRequestBuffer, int bufferLength) const
+const std::string ServerSocket::Receive(ServerSocket socket) const
 {
-    int bytesReceived = recv(socket.socketHandle_,
-        clientRequestBuffer,
-        bufferLength,
-        MSG_PEEK);
+    const size_t bufferSize = 10;
+    char buffer[bufferSize];
 
-    if (bytesReceived == SOCKET_ERROR)
-    {
-        throw ServerSocketException("Socket receiving data error");
-    }
+    int bytesReceived;
+    std::string message;
+    
+    do 
+    {   
+        memset(buffer, '\0', bufferSize);
+        bytesReceived = recv(socket.socketHandle_, buffer, bufferSize, 0);
 
-    return bytesReceived;
-}
+        if (bytesReceived == SOCKET_ERROR) 
+        {
+            throw ServerSocketException("Socket receiving data error occurred.");
+        }
+        else 
+        {
+            message.append(buffer, buffer + bufferSize);
+        }
 
-
-
-bool ServerSocket::performWsaStartup()
-{
-    int wsaStartupResult = WSAStartup(MAKEWORD(2, 1), &wsaData_);
-    return wsaStartupResult == 0;
+    } while (bytesReceived == bufferSize);
+        
+    return message;
 }
 
 void ServerSocket::constructSocket(SOCKET socketHandle)
 {
-    ++instancesCount_;
-
-    if (!isWsaStartup_)
-    {
-        isWsaStartup_ = performWsaStartup();
-
-        if (!isWsaStartup_)
-        {
-            isSocketValid_ = false;
-            return;
-        }
-    }
-
     socketHandle_ = socketHandle;
 
-    if (socketHandle_ == NULL)
+    if (socketHandle_ == 0)
     {
         socketHandle_ = socket(AF_INET, SOCK_STREAM, 0);
     }
@@ -128,8 +112,3 @@ void ServerSocket::constructSocket(SOCKET socketHandle)
     serverAddress_.sin_port = htons(serverPortNumber_);
     serverAddress_.sin_addr.s_addr = INADDR_ANY;
 }
-
-
-WSADATA ServerSocket::wsaData_;
-bool ServerSocket::isWsaStartup_ = false;
-int ServerSocket::instancesCount_ = 0;

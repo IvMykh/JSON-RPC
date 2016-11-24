@@ -1,7 +1,7 @@
 #ifndef CLIENT_SOCKET_H_
 #define CLIENT_SOCKET_H_
 
-#include <windows.h>
+
 #include <winsock.h>
 #include <string>
 
@@ -12,9 +12,16 @@
 #pragma comment (lib, "AdvApi32.lib")
 
 
-
 class ClientSocket
 {
+public:
+    enum ShutDownOptions
+    {
+        SHUTDOWN_RECEIVE    = 0,
+        SHUTDOWN_SEND       = 1,
+        SHUTDOWN_BOTH       = 2
+    };
+
 public:
     ClientSocket(const int serverPortNumber, const std::string& serverName);
     ~ClientSocket();
@@ -24,14 +31,8 @@ public:
     const bool          IsSocketValid() const;
 
     void                Connect() const;
+    void                ShutDown(const int shutDownOption) const;
     const int           Send(const char* clientRequest, const int messageLength) const;
-
-private:
-    static bool         performWsaStartup();
-    
-    static WSADATA      wsaData_;
-    static bool         isWsaStartup_;
-    static int          instancesCount_;
 
 private:
     SOCKET              socketHandle_;

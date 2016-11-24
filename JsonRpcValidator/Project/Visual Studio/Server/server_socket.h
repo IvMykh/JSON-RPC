@@ -1,14 +1,16 @@
 #ifndef SERVER_SOCKET_H_
 #define SERVER_SOCKET_H_
 
-#include <windows.h>
+
 #include <winsock.h>
+#include <string>
 
 #include "server_socket_exception.h"
 
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
+
 
 class ServerSocket
 {
@@ -18,31 +20,23 @@ public:
     
     ~ServerSocket();
 
-    const int ServerPortNumber() const;
-    const bool IsSocketValid() const;
+    const int           ServerPortNumber() const;
+    const bool          IsSocketValid() const;
 
-    void Bind() const;
-    void Listen(const int maxConnectionsCount) const;
+    void                Bind() const;
+    void                Listen(const int maxConnectionsCount) const;
 
-    const ServerSocket Accept() const;
-    const int Receive(ServerSocket socket, char* clientRequestBuffer, int bufferLength) const;
-
-private:
-    static bool performWsaStartup();
+    const ServerSocket  Accept() const;
+    const std::string   Receive(ServerSocket socket) const;
 
 private:
-    void constructSocket(SOCKET socketHandle);
+    void                constructSocket(SOCKET socketHandle);
 
 private:
-    static WSADATA wsaData_;
-    static bool isWsaStartup_;
-    static int  instancesCount_;
-
-private:
-    SOCKET socketHandle_;
-    sockaddr_in serverAddress_;
-    int serverPortNumber_;
-    bool isSocketValid_;
+    SOCKET              socketHandle_;
+    sockaddr_in         serverAddress_;
+    int                 serverPortNumber_;
+    bool                isSocketValid_;
 };
 
 #endif // SERVER_SOCKET_H_

@@ -5,6 +5,19 @@
 
 int main()
 {
+    // Initiate use of the Winsock DLL by a process.
+    WSADATA wsaData;
+
+    if (WSAStartup(MAKEWORD(2, 1), &wsaData) != 0)
+    {
+        std::cout << "Initiating Winsock DLL error occurred." << std::endl;
+
+        system("pause");
+        return 0;
+    }
+
+
+
     const int portNumber = 5000;
     ServerSocket socket(portNumber);
 
@@ -13,6 +26,8 @@ int main()
         std::cout << "Socket is not valid, " 
                   << "you cannot do any communication." << std::endl;
 
+        WSACleanup();
+
         system("pause");
         return 0;
     }
@@ -20,27 +35,20 @@ int main()
     try
     {
         socket.Bind();
-        socket.Listen(2);
+        socket.Listen(1);
 
         ServerSocket newSocket = socket.Accept();
 
-        const int requestMsgSize = 200;
-        char clientRequest[requestMsgSize] = "\0";
+        std::string message = socket.Receive(newSocket);
 
-        int bytesReceived = socket.Receive(newSocket,
-            clientRequest,
-            requestMsgSize);
+        std::cout << "Received message:" << std::endl 
+                  << message << std::endl;
 
-        std::string receivedText(clientRequest);
-
-        std::cout << "Server received " << bytesReceived << " bytes" << std::endl;
-        std::cout << "Text: " << receivedText << std::endl;
-
-        memset(clientRequest, 0, requestMsgSize);
     }
     catch (const ServerSocketException& exception)
     {
         std::cout << exception.what() << std::endl;
+        WSACleanup();
     }
 
     system("pause");

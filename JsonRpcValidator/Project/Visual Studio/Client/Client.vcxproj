@@ -68,7 +68,7 @@
   <ItemGroup>
     <ClCompile Include="client_socket.cpp" />
     <ClCompile Include="client_socket_exception.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="client_main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client_socket.h" />

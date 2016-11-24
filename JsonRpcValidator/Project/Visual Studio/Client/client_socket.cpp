@@ -6,19 +6,6 @@ ClientSocket::ClientSocket(const int serverPortNumber, const std::string& server
       serverName_(serverName),
       isSocketValid_(true)
 {
-    ++instancesCount_;
-
-    if (!isWsaStartup_)
-    {
-        isWsaStartup_ = performWsaStartup();
-
-        if (!isWsaStartup_)
-        {
-            isSocketValid_ = false;
-            return;
-        }
-    }
-
     if ((socketHandle_ = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
     {
         isSocketValid_ = false;
@@ -31,7 +18,7 @@ ClientSocket::ClientSocket(const int serverPortNumber, const std::string& server
     serverAddress_.sin_family = AF_INET;
     serverAddress_.sin_port = htons(serverPortNumber_);
     serverAddress_.sin_addr.s_addr = inet_addr(serverName_.c_str());
-
+    
     if (serverAddress_.sin_addr.s_addr == INADDR_NONE)
     {
         isSocketValid_ = false;
@@ -42,13 +29,6 @@ ClientSocket::ClientSocket(const int serverPortNumber, const std::string& server
 ClientSocket::~ClientSocket()
 {
     closesocket(socketHandle_);
-
-    --instancesCount_;
-    if (instancesCount_ == 0)
-    {
-        WSACleanup();
-        isWsaStartup_ = false;
-    }
 }
 
 const int ClientSocket::ServerPortNumber() const
@@ -75,6 +55,15 @@ void ClientSocket::Connect() const
         throw ClientSocketException("Socket connection error occurred.");
     }
 }
+void ClientSocket::ShutDown(const int shutDownOption) const
+{
+    int shutdownResult = shutdown(socketHandle_, shutDownOption);
+    
+    if (shutdownResult == SOCKET_ERROR) 
+    {
+        throw ClientSocketException("Socket shutdown error occurred.");
+    }
+}
 
 const int ClientSocket::Send(const char* clientRequest, const int messageLength) const
 {
@@ -87,15 +76,3 @@ const int ClientSocket::Send(const char* clientRequest, const int messageLength)
 
     return bytesSent;
 }
-
-
-
-bool ClientSocket::performWsaStartup()
-{
-    int wsaStartupResult = WSAStartup(MAKEWORD(2, 1), &wsaData_);
-    return wsaStartupResult == 0;
-}
-
-int ClientSocket::instancesCount_ = 0;
-WSADATA ClientSocket::wsaData_;
-bool ClientSocket::isWsaStartup_ = false;

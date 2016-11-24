@@ -66,7 +66,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="server_main.cpp" />
     <ClCompile Include="server_socket.cpp" />
     <ClCompile Include="server_socket_exception.cpp" />
   </ItemGroup>
