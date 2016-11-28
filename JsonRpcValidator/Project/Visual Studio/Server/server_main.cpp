@@ -74,7 +74,8 @@ void ParseSampleJson()
     std::list<Token*> tokens;
     try
     {
-        std::string text = "{ \"name\" : \"Ivan\", \"numbers\" : [10, -21, -1.5, +1.8e-7], \"nested object\" : { \"val\": true } }";
+        std::string text = 
+            "[{ \"name\" : \"Ivan\", \"numbers\" : [10, -21, -1.5, +1.8e-7], \"nested object\" : { \"val\": true } },{}]";
     
 
         Lexer l;

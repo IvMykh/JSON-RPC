@@ -16,8 +16,26 @@ Parser::~Parser()
 
 NonTerminalNode* Parser::Parse(const std::list<Token*>& tokens) const
 {
+    if (tokens.empty())
+    {
+        throw ParsingErrorException(1, "'{' or '[' expected");
+    }
+
     std::list<ParseTreeNode*> tokensToParse(tokens.begin(), tokens.end());
-    NonTerminalNode* tree = parseObject(tokensToParse);
+    NonTerminalNode* tree;
+
+    if (tokens.front()->GetType() == NodeType::OpenSquare)
+    {
+        tree = parseArray(tokensToParse);
+    }
+    else if (tokens.front()->GetType() == NodeType::OpenCurly)
+    {
+        tree = parseObject(tokensToParse);
+    }
+    else
+    {
+        throw ParsingErrorException(1, "'{' or '[' expected");
+    }
 
     if (!tokensToParse.empty())
     {
@@ -32,12 +50,6 @@ NonTerminalNode* Parser::Parse(const std::list<Token*>& tokens) const
 
 NonTerminalNode* Parser::parseObject(std::list<ParseTreeNode*>& nodes) const
 {
-    // Only for main object.
-    if (nodes.empty())
-    {
-        throw ParsingErrorException(1, "'{' expected");
-    }
-
     std::list<ParseTreeNode*> objectNodes = 
         retrieveComplexObjectFrom(nodes, NodeType::OpenCurly);
     
