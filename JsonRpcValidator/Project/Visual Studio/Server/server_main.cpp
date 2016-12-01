@@ -5,23 +5,30 @@
 #include "server_socket.h"
 #include "lexer.h"
 #include "parser.h"
-#include "visualize_tree_visitor.h"
-#include "parsing_error_exception.h"
+#include "json_rpc_validator.h"
 
-void PerfoemReceivingMessage();
+#include "visualize_tree_visitor.h"
+#include "validation_error_exception.h"
+
+
+
+void PerformReceivingMessage();
 void ParseSampleJson();
+void ValidateSampleJsonRpc();
+const std::string GetJsonPrcObjectTypeString(const JsonRpcObjectType type);
 
 int main()
 {
-    //PerfoemReceivingMessage();
-    ParseSampleJson();
+    //PerformReceivingMessage();
+    //ParseSampleJson();
+    ValidateSampleJsonRpc();
 
     system("pause");
     return 0;
 }
 
 
-void PerfoemReceivingMessage()
+void PerformReceivingMessage()
 {
     // Initiate use of the Winsock DLL by a process.
     WSADATA wsaData;
@@ -87,10 +94,64 @@ void ParseSampleJson()
         VisualizeTreeVisitor visualizer(std::cout);
         parseTree->AcceptVisitor(visualizer);
     }
-    catch (ParsingErrorException pee)
+    catch (const ValidationErrorException& vee)
     {
-        std::cout << pee.what() << " (line " << pee.GetLineNumber() << ")" << std::endl;
+        std::cout << vee.what() << " (line " << vee.GetLineNumber() << ")" << std::endl;
     }
 
     std::for_each(tokens.begin(), tokens.end(), [](const Token* t) { delete t; });
+}
+void ValidateSampleJsonRpc()
+{
+    std::list<Token*> tokens;
+    NonTerminalNode* parseTree = nullptr;
+
+    try
+    {
+        std::string jsonRpc =
+            "{ \"jsonrpc\": \"2.0\", \"method\" : \"subtract\", \"params\" : {\"n\": 42}, \"id\" : 4 }";
+
+        std::cout << jsonRpc << std::endl
+                  << std::endl;
+
+        Lexer l;
+        tokens = l.Tokenize(jsonRpc);
+
+        Parser p;
+        parseTree = p.Parse(tokens);
+
+        VisualizeTreeVisitor visualizer(std::cout);
+        parseTree->AcceptVisitor(visualizer);
+        std::cout << std::endl
+                  << std::endl;
+
+        JsonRpcValidator validator;
+        JsonRpcObjectType objectType = validator.Validate(parseTree);
+
+        std::string typeString = GetJsonPrcObjectTypeString(objectType);
+
+        std::cout << "Specified object is a valid " << typeString << "." << std::endl
+                  << std::endl;
+
+    }
+    catch (const ValidationErrorException& vee)
+    {
+        std::cout << vee.what() << " (line " << vee.GetLineNumber() << ")" << std::endl;
+    }
+    
+    delete parseTree;
+    std::for_each(tokens.begin(), tokens.end(), [](Token* token) { delete token; });
+}
+
+const std::string GetJsonPrcObjectTypeString(const JsonRpcObjectType type)
+{
+    switch (type)
+    {
+    case JsonRpcObjectType::REQUEST:        return "Request";
+    case JsonRpcObjectType::RESPONSE:       return "Response";
+    case JsonRpcObjectType::BATCH_REQUEST:  return "Batch Request";
+    case JsonRpcObjectType::BATCH_RESPONSE: return "Batch Response";
+
+    default: return "<unexpected>";
+    }
 }
