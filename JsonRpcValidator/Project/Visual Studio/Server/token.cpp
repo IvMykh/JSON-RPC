@@ -28,6 +28,11 @@ const int Token::GetLineNumber() const
     return lineNumber_;
 }
 
+bool Token::IsNodeTerminal() const
+{
+    return true;
+}
+
 void Token::AcceptVisitor(ParseTreeVisitor& visitor)
 {
     visitor.VisitToken(this);

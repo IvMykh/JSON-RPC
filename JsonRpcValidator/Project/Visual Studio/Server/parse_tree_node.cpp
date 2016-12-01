@@ -15,3 +15,8 @@ const NodeType ParseTreeNode::GetType() const
 {
     return type_;
 }
+
+bool ParseTreeNode::IsNodeTerminal() const
+{
+    return false;
+}

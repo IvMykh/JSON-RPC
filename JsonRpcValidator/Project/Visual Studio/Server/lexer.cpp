@@ -1,68 +1,81 @@
 #include "lexer.h"
 
 #include <regex>
-#include "parsing_error_exception.h"
+#include "validation_error_exception.h"
 
 
 const std::list<Token*> Lexer::Tokenize(const std::string& text) const
 {
     std::list<Token*> tokens;
-    int lineNumber = 1;
 
-    int linePos = 0;
-    while (linePos < text.length())
+    try
     {
-        const char firstChar = text[linePos];
+        int lineNumber = 1;
 
-        switch (firstChar)
+        int linePos = 0;
+        while (linePos < text.length())
         {
-        case '{':  tokens.push_back(new Token { NodeType::OpenCurly, "{", lineNumber });
-            break;
-        case '}':  tokens.push_back(new Token { NodeType::CloseCurly, "}", lineNumber });
-            break;
-        case '[':  tokens.push_back(new Token { NodeType::OpenSquare, "[", lineNumber }); 
-            break;
-        case ']':  tokens.push_back(new Token { NodeType::CloseSquare, "]", lineNumber });
-            break;
-        case ',':  tokens.push_back(new Token { NodeType::Comma, ",", lineNumber });
-            break;
-        case ':':  tokens.push_back(new Token { NodeType::Colon, ":", lineNumber });
-            break;
+            const char firstChar = text[linePos];
 
-        case 't':  tokens.push_back(retrieveTrue(text, lineNumber, linePos)); 
-            break;
-        case 'f':  tokens.push_back(retrieveFalse(text, lineNumber, linePos)); 
-            break;
-        case 'n':  tokens.push_back(retrieveNull(text, lineNumber, linePos)); 
-            break;
-        case '\"': tokens.push_back(retrieveString(text, lineNumber, linePos)); 
-            break;
-
-        case ' ':
-        case '\t':
-            ++linePos;
-            continue;
-
-        case '\n':
-            ++lineNumber;
-            ++linePos;
-            continue;
-
-        default:
-            if (firstChar == '+' ||
-                firstChar == '-' ||
-                ('0' <= firstChar && firstChar <= '9'))
+            switch (firstChar)
             {
-                tokens.push_back(retrieveNumber(text, lineNumber, linePos));
+            case '{':  tokens.push_back(new Token { NodeType::OpenCurly, "{", lineNumber });
+                break;
+            case '}':  tokens.push_back(new Token { NodeType::CloseCurly, "}", lineNumber });
+                break;
+            case '[':  tokens.push_back(new Token { NodeType::OpenSquare, "[", lineNumber });
+                break;
+            case ']':  tokens.push_back(new Token { NodeType::CloseSquare, "]", lineNumber });
+                break;
+            case ',':  tokens.push_back(new Token { NodeType::Comma, ",", lineNumber });
+                break;
+            case ':':  tokens.push_back(new Token { NodeType::Colon, ":", lineNumber });
+                break;
+
+            case 't':  tokens.push_back(retrieveTrue(text, lineNumber, linePos));
+                break;
+            case 'f':  tokens.push_back(retrieveFalse(text, lineNumber, linePos));
+                break;
+            case 'n':  tokens.push_back(retrieveNull(text, lineNumber, linePos));
+                break;
+            case '\"': tokens.push_back(retrieveString(text, lineNumber, linePos));
+                break;
+
+            case ' ':
+            case '\t':
+                ++linePos;
+                continue;
+
+            case '\n':
+                ++lineNumber;
+                ++linePos;
+                continue;
+
+            default:
+                if (firstChar == '+' ||
+                    firstChar == '-' ||
+                    ('0' <= firstChar && firstChar <= '9'))
+                {
+                    tokens.push_back(retrieveNumber(text, lineNumber, linePos));
+                }
+                else
+                {
+                    throw ValidationErrorException(lineNumber, "Invalid token");
+                }
+                break;
             }
-            else
-            {
-                throw ParsingErrorException(lineNumber, "Invalid token");
-            }
-            break;
+
+            linePos += tokens.back()->GetValue().length();
+        }
+    }
+    catch (const ValidationErrorException& vee)
+    {
+        for (auto token = tokens.begin(); token != tokens.end(); ++token)
+        {
+            delete *token;
         }
 
-        linePos += tokens.back()->GetValue().length();
+        throw;
     }
 
     return tokens;
@@ -95,7 +108,7 @@ Token* Lexer::retrieveTrue(const std::string& text, int lineNumber, int startPos
     }
     else
     {
-        throw ParsingErrorException(lineNumber, "Error occurred while parsing true");
+        throw ValidationErrorException(lineNumber, "Error occurred while parsing true");
     }
 }
 
@@ -112,7 +125,7 @@ Token* Lexer::retrieveFalse(const std::string& text, int lineNumber, int startPo
     }
     else
     {
-        throw ParsingErrorException(lineNumber, "Error occurred while parsing false");
+        throw ValidationErrorException(lineNumber, "Error occurred while parsing false");
     }
 }
 
@@ -128,7 +141,7 @@ Token* Lexer::retrieveNull(const std::string& text, int lineNumber, int startPos
     }
     else
     {
-        throw ParsingErrorException(lineNumber, "Error occurred while parsing null");
+        throw ValidationErrorException(lineNumber, "Error occurred while parsing null");
     }
 }
 
@@ -143,7 +156,7 @@ Token* Lexer::retrieveString(const std::string& text, int lineNumber, int startP
     }
     else
     {
-        throw ParsingErrorException(lineNumber, "Error occurred while parsing string");
+        throw ValidationErrorException(lineNumber, "Error occurred while parsing string");
     }
 }
 
@@ -158,6 +171,6 @@ Token* Lexer::retrieveNumber(const std::string& text, int lineNumber, int startP
     }
     else
     {
-        throw ParsingErrorException(lineNumber, "Error occurred while parsing number");
+        throw ValidationErrorException(lineNumber, "Error occurred while parsing number");
     }
 }

@@ -1,7 +1,7 @@
 #include "Parser.h"
 
 #include <string>
-#include "parsing_error_exception.h"
+#include "validation_error_exception.h"
 
 
 
@@ -9,37 +9,37 @@ Parser::Parser()
 {
 }
 
-
 Parser::~Parser()
 {
 }
 
 NonTerminalNode* Parser::Parse(const std::list<Token*>& tokens) const
 {
-    if (tokens.empty())
+    std::list<ParseTreeNode*> tokensToParse(tokens.begin(), tokens.end());
+    NonTerminalNode* tree = nullptr;
+    
+    if (tokensToParse.empty())
     {
-        throw ParsingErrorException(1, "'{' or '[' expected");
+        throw ValidationErrorException(1, "'{' or '[' expected");
     }
 
-    std::list<ParseTreeNode*> tokensToParse(tokens.begin(), tokens.end());
-    NonTerminalNode* tree;
 
-    if (tokens.front()->GetType() == NodeType::OpenSquare)
+    if (tokensToParse.front()->GetType() == NodeType::OpenSquare)
     {
         tree = parseArray(tokensToParse);
     }
-    else if (tokens.front()->GetType() == NodeType::OpenCurly)
+    else if (tokensToParse.front()->GetType() == NodeType::OpenCurly)
     {
         tree = parseObject(tokensToParse);
     }
     else
     {
-        throw ParsingErrorException(1, "'{' or '[' expected");
+        throw ValidationErrorException(1, "'{' or '[' expected");
     }
 
     if (!tokensToParse.empty())
     {
-        throw ParsingErrorException(
+        throw ValidationErrorException(
             tokensToParse.front()->GetLineNumber(), "End of object expected");
     }
 
@@ -61,37 +61,45 @@ NonTerminalNode* Parser::parseObject(std::list<ParseTreeNode*>& nodes) const
     
     
     NonTerminalNode* root = new NonTerminalNode(NodeType::Object);
-    root->AddChild(openCurlyNode);
 
-    if (!objectNodes.empty())
+    try
     {
-        root->AddChild(parsePair(objectNodes));
-    }
-
-    ParseTreeNode* previousNode = nullptr;
-
-    while (!objectNodes.empty())
-    {
-        if (objectNodes.front()->GetType() != NodeType::Comma)
+        if (!objectNodes.empty())
         {
-            throw ParsingErrorException(
-                objectNodes.front()->GetLineNumber(), "',' expected");
+            root->PushBackChild(parsePair(objectNodes));
         }
 
-        previousNode = objectNodes.front();
-        root->AddChild(objectNodes.front());
-        objectNodes.pop_front();
+        ParseTreeNode* previousNode = nullptr;
 
-        if (objectNodes.empty())
+        while (!objectNodes.empty())
         {
-            throw ParsingErrorException(
-                previousNode->GetLineNumber(), "Next pair expected");
+            if (objectNodes.front()->GetType() != NodeType::Comma)
+            {
+                throw ValidationErrorException(
+                    objectNodes.front()->GetLineNumber(), "',' expected");
+            }
+
+            previousNode = objectNodes.front();
+            root->PushBackChild(objectNodes.front());
+            objectNodes.pop_front();
+
+            if (objectNodes.empty())
+            {
+                throw ValidationErrorException(
+                    previousNode->GetLineNumber(), "Next pair expected");
+            }
+
+            root->PushBackChild(parsePair(objectNodes));
         }
 
-        root->AddChild(parsePair(objectNodes));
+        root->PushFrontChild(openCurlyNode);
+        root->PushBackChild(closeCurlyNode);
     }
-
-    root->AddChild(closeCurlyNode);
+    catch (const ValidationErrorException& vee)
+    {
+        delete root;
+        throw;
+    }
 
     return root;
 }
@@ -109,37 +117,45 @@ NonTerminalNode* Parser::parseArray(std::list<ParseTreeNode*>& nodes) const
 
 
     NonTerminalNode* root = new NonTerminalNode(NodeType::Array);
-    root->AddChild(openSquareNode);
 
-    if (!arrayNodes.empty())
+    try
     {
-        root->AddChild(parseValue(arrayNodes));
-    }
-
-    ParseTreeNode* previousNode = nullptr;
-
-    while (!arrayNodes.empty())
-    {
-        if (arrayNodes.front()->GetType() != NodeType::Comma)
+        if (!arrayNodes.empty())
         {
-            throw ParsingErrorException(
-                arrayNodes.front()->GetLineNumber(), "',' expected");
+            root->PushBackChild(parseValue(arrayNodes));
         }
 
-        previousNode = arrayNodes.front();
-        root->AddChild(arrayNodes.front());
-        arrayNodes.pop_front();
+        ParseTreeNode* previousNode = nullptr;
 
-        if (arrayNodes.empty())
+        while (!arrayNodes.empty())
         {
-            throw ParsingErrorException(
-                previousNode->GetLineNumber(), "Next value expected");
+            if (arrayNodes.front()->GetType() != NodeType::Comma)
+            {
+                throw ValidationErrorException(
+                    arrayNodes.front()->GetLineNumber(), "',' expected");
+            }
+
+            previousNode = arrayNodes.front();
+            root->PushBackChild(arrayNodes.front());
+            arrayNodes.pop_front();
+
+            if (arrayNodes.empty())
+            {
+                throw ValidationErrorException(
+                    previousNode->GetLineNumber(), "Next value expected");
+            }
+
+            root->PushBackChild(parseValue(arrayNodes));
         }
 
-        root->AddChild(parseValue(arrayNodes));
+        root->PushFrontChild(openSquareNode);
+        root->PushBackChild(closeSquareNode);
     }
-
-    root->AddChild(closeSquareNode);
+    catch (const ValidationErrorException& vee)
+    {
+        delete root;
+        throw;
+    }
 
     return root;
 }
@@ -148,73 +164,90 @@ NonTerminalNode* Parser::parsePair(std::list<ParseTreeNode*>& nodes) const
 {
     NonTerminalNode* root = new NonTerminalNode(NodeType::Pair);
 
-    if (nodes.front()->GetType() != NodeType::String)
+    try
     {
-        throw ParsingErrorException(
-            nodes.front()->GetLineNumber(), "String expected");
+        if (nodes.front()->GetType() != NodeType::String)
+        {
+            throw ValidationErrorException(
+                nodes.front()->GetLineNumber(), "String expected");
+        }
+
+        ParseTreeNode* previousNode = nodes.front();
+        root->PushBackChild(nodes.front());
+        nodes.pop_front();
+
+
+
+        if (nodes.empty())
+        {
+            throw ValidationErrorException(
+                previousNode->GetLineNumber(), "':' expected");
+        }
+        else if (nodes.front()->GetType() != NodeType::Colon)
+        {
+            throw ValidationErrorException(
+                nodes.front()->GetLineNumber(), "':' expected");
+        }
+
+        previousNode = nodes.front();
+        root->PushBackChild(nodes.front());
+        nodes.pop_front();
+
+
+
+        if (nodes.empty())
+        {
+            throw ValidationErrorException(
+                previousNode->GetLineNumber(), "Valid value expected");
+        }
+
+        root->PushBackChild(parseValue(nodes));
+    }
+    catch (const ValidationErrorException& vee)
+    {
+        delete root;
+        throw;
     }
 
-    ParseTreeNode* previousNode = nodes.front();
-    root->AddChild(nodes.front());
-    nodes.pop_front();
-
-
-
-    if (nodes.empty())
-    {
-        throw ParsingErrorException(
-            previousNode->GetLineNumber(), "':' expected");
-    } 
-    else if(nodes.front()->GetType() != NodeType::Colon)
-    {
-        throw ParsingErrorException(
-            nodes.front()->GetLineNumber(), "':' expected");
-    }
-
-    previousNode = nodes.front();
-    root->AddChild(nodes.front());
-    nodes.pop_front();
-
-
-
-    if (nodes.empty())
-    {
-        throw ParsingErrorException(
-            previousNode->GetLineNumber(), "Valid value expected");
-    }
-
-    root->AddChild(parseValue(nodes));
-    
     return root;
 }
 
 NonTerminalNode* Parser::parseValue(std::list<ParseTreeNode*>& nodes) const
 {
     NonTerminalNode* root = new NonTerminalNode(NodeType::Value);
-    NodeType type = nodes.front()->GetType();
 
-    switch (type)
+    try
     {
-    case NodeType::OpenCurly:
-        root->AddChild(parseObject(nodes));
-        break;
+        NodeType type = nodes.front()->GetType();
 
-    case NodeType::OpenSquare:
-        root->AddChild(parseArray(nodes));
-        break;
+        switch (type)
+        {
+        case NodeType::OpenCurly:
+            root->PushBackChild(parseObject(nodes));
+            break;
 
-    case NodeType::True: 
-    case NodeType::False:
-    case NodeType::Null:
-    case NodeType::String:
-    case NodeType::Number:
-        root->AddChild(nodes.front());
-        nodes.pop_front();
-        break;
-  
-    default:
-        throw ParsingErrorException(
-            nodes.front()->GetLineNumber(), "Valid value expected");
+        case NodeType::OpenSquare:
+            root->PushBackChild(parseArray(nodes));
+            break;
+
+        case NodeType::True:
+        case NodeType::False:
+        case NodeType::Null:
+        case NodeType::String:
+        case NodeType::Number:
+            root->PushBackChild(nodes.front());
+            nodes.pop_front();
+            break;
+
+        default:
+            throw ValidationErrorException(
+                nodes.front()->GetLineNumber(), "Valid value expected");
+        }
+    }
+    catch (const ValidationErrorException& vee)
+    {
+        delete root;
+        throw;
     }
 
     return root;
@@ -249,7 +282,7 @@ std::list<ParseTreeNode*> Parser::retrieveComplexObjectFrom(
 
     if (openNode->GetType() != openBracketType)
     {
-        throw ParsingErrorException(
+        throw ValidationErrorException(
             openNode->GetLineNumber(), openBracketErrorMessage);
     }
 
@@ -278,7 +311,7 @@ std::list<ParseTreeNode*> Parser::retrieveComplexObjectFrom(
 
     if (nestedObject.back()->GetType() != closeBracketType)
     {
-        throw ParsingErrorException(
+        throw ValidationErrorException(
             nestedObject.back()->GetLineNumber(), closeBracketErrorMessage);
     }
 

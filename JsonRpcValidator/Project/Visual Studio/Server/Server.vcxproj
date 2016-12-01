@@ -66,11 +66,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="json_rpc_validator.cpp" />
     <ClCompile Include="lexer.cpp" />
     <ClCompile Include="non_terminal_node.cpp" />
     <ClCompile Include="parser.cpp" />
     <ClCompile Include="parse_tree_node.cpp" />
-    <ClCompile Include="parsing_error_exception.cpp" />
+    <ClCompile Include="validation_error_exception.cpp" />
     <ClCompile Include="server_main.cpp" />
     <ClCompile Include="server_socket.cpp" />
     <ClCompile Include="server_socket_exception.cpp" />
@@ -78,17 +79,23 @@
     <ClCompile Include="visualize_tree_visitor.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="json_rpc_object_type.h" />
+    <ClInclude Include="json_rpc_validator.h" />
     <ClInclude Include="lexer.h" />
     <ClInclude Include="node_type.h" />
     <ClInclude Include="non_terminal_node.h" />
     <ClInclude Include="parser.h" />
     <ClInclude Include="parse_tree_node.h" />
     <ClInclude Include="parse_tree_visitor.h" />
-    <ClInclude Include="parsing_error_exception.h" />
+    <ClInclude Include="validation_error_exception.h" />
     <ClInclude Include="server_socket.h" />
     <ClInclude Include="server_socket_exception.h" />
     <ClInclude Include="token.h" />
+    <ClInclude Include="validation_state.h" />
     <ClInclude Include="visualize_tree_visitor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Sample.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

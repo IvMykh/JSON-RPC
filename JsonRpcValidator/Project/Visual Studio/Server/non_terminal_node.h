@@ -16,7 +16,9 @@ public:
 
     const std::list<ParseTreeNode*>&    GetChildren() const;
     virtual const int                   GetLineNumber() const override;
-    void                                AddChild(ParseTreeNode* child);
+
+    void                                PushFrontChild(ParseTreeNode* child);
+    void                                PushBackChild(ParseTreeNode* child);
 
     virtual void                        AcceptVisitor(ParseTreeVisitor& visitor) override;
 

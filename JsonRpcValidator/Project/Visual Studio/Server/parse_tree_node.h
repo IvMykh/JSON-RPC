@@ -16,6 +16,8 @@ public:
     const NodeType      GetType() const;
     virtual const int   GetLineNumber() const = 0;
 
+    virtual bool        IsNodeTerminal() const;
+
     virtual void        AcceptVisitor(ParseTreeVisitor& visitor) = 0;
 
 private:

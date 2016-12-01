@@ -18,6 +18,8 @@ public:
     const std::string&      GetValue() const;
     virtual const int       GetLineNumber() const override;
 
+    virtual bool            IsNodeTerminal() const override;
+
     virtual void            AcceptVisitor(ParseTreeVisitor& visitor) override;
 
     friend std::ostream&    operator<< (std::ostream& os, const Token& t);
