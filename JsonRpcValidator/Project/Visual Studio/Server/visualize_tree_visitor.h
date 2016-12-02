@@ -21,7 +21,8 @@ public:
 private:
     const std::string nodeTypeToString(const NodeType& nodeType) const;
 
-private:
+
+
     std::ostream&   outStream_;
     int             level_;
 };

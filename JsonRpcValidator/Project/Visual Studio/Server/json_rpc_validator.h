@@ -60,7 +60,8 @@ private:
     void    checkRequestForMissings(const int lineNumber) const;
     void    checkResponseForMissings(const int lineNumber) const;
 
-private:
+
+
     ValidationState     state_;
     JsonRpcObjectType   objectType_;
 };

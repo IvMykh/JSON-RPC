@@ -20,7 +20,7 @@ public:
     
     ~ServerSocket();
 
-    const int           ServerPortNumber() const;
+    const int           GetServerPortNumber() const;
     const bool          IsSocketValid() const;
 
     void                Bind() const;
@@ -32,7 +32,8 @@ public:
 private:
     void                constructSocket(SOCKET socketHandle);
 
-private:
+
+
     SOCKET              socketHandle_;
     sockaddr_in         serverAddress_;
     int                 serverPortNumber_;

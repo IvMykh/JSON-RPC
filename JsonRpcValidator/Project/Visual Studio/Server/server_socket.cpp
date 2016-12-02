@@ -20,7 +20,7 @@ ServerSocket::~ServerSocket()
     closesocket(socketHandle_);
 }
 
-const int ServerSocket::ServerPortNumber() const
+const int ServerSocket::GetServerPortNumber() const
 {
     return serverPortNumber_;
 }
