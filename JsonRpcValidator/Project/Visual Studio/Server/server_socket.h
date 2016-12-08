@@ -24,29 +24,35 @@ public:
 
 
     ServerSocket(const int serverPortNumber);
-    ServerSocket(SOCKET socketHandle, const int serverPortNumber);
     
     ~ServerSocket();
 
     const int           GetServerPortNumber() const;
     const bool          IsSocketValid() const;
+    const std::string   GetConnectedClientIp() const;
 
     void                Bind() const;
     void                Listen(const int maxConnectionsCount) const;
-
     const ServerSocket  Accept() const;
-    
     void                ShutDown(const int shutDownOption) const;
 
     const int           SendResponse(const unsigned& response) const;
     const std::string   ReceiveRequest() const;
 
+
 private:
-    void                constructSocket(SOCKET socketHandle);
+    ServerSocket(
+        SOCKET socketHandle, 
+        const int serverPortNumber, 
+        const sockaddr_in* clientAddress);
+
+    void                constructSocket(
+        SOCKET socketHandle, const sockaddr_in* clientAddress);
 
 
     SOCKET              socketHandle_;
     sockaddr_in         serverAddress_;
+    sockaddr_in         connectedClientAddress_;
     int                 serverPortNumber_;
     bool                isSocketValid_;
 };

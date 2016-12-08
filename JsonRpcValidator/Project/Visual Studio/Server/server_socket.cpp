@@ -6,13 +6,15 @@ ServerSocket::ServerSocket(const int serverPortNumber)
     : serverPortNumber_(serverPortNumber),
       isSocketValid_(true)
 {
-    constructSocket(0);
+    constructSocket(0, nullptr);
 }
-ServerSocket::ServerSocket(SOCKET socketHandle, const int serverPortNumber)
+
+ServerSocket::ServerSocket(
+    SOCKET socketHandle, const int serverPortNumber, const sockaddr_in* clientAddress)
     : serverPortNumber_(serverPortNumber),
       isSocketValid_(true)
 {
-    constructSocket(socketHandle);
+    constructSocket(socketHandle, clientAddress);
 }
 
 ServerSocket::~ServerSocket()
@@ -24,9 +26,15 @@ const int ServerSocket::GetServerPortNumber() const
 {
     return serverPortNumber_;
 }
+
 const bool ServerSocket::IsSocketValid() const
 {
     return isSocketValid_;
+}
+
+const std::string ServerSocket::GetConnectedClientIp() const
+{
+    return std::string(inet_ntoa(connectedClientAddress_.sin_addr));
 }
 
 void ServerSocket::Bind() const
@@ -53,14 +61,15 @@ void ServerSocket::Listen(const int maxConnectionsCount) const
 
 const ServerSocket ServerSocket::Accept() const
 {
-    sockaddr_in clientAddr;
+    sockaddr_in clientAddress;
     int sockAddrSize = sizeof(sockaddr_in);
 
     SOCKET newSHandle = accept(socketHandle_,
-        (sockaddr*)&clientAddr,
+        (sockaddr*)&clientAddress,
         &sockAddrSize);
 
-    return ServerSocket(newSHandle, serverPortNumber_);
+    return ServerSocket(
+        newSHandle, serverPortNumber_, &clientAddress);
 }
 
 void ServerSocket::ShutDown(const int shutDownOption) const
@@ -113,8 +122,12 @@ const std::string ServerSocket::ReceiveRequest() const
     return message;
 }
 
-void ServerSocket::constructSocket(SOCKET socketHandle)
+void ServerSocket::constructSocket(
+    SOCKET socketHandle, const sockaddr_in* clientAddress)
 {
+    memset(&connectedClientAddress_, 0, sizeof(sockaddr_in));
+    memset(&serverAddress_, 0, sizeof(sockaddr_in));
+    
     socketHandle_ = socketHandle;
 
     if (socketHandle_ == 0)
@@ -128,9 +141,11 @@ void ServerSocket::constructSocket(SOCKET socketHandle)
         return;
     }
 
-    int sockAddrSize = sizeof(sockaddr_in);
+    if (clientAddress != nullptr)
+    {
+        connectedClientAddress_ = *clientAddress;
+    }
 
-    memset(&serverAddress_, 0, sockAddrSize);
     serverAddress_.sin_family = AF_INET;
     serverAddress_.sin_port = htons(serverPortNumber_);
     serverAddress_.sin_addr.s_addr = INADDR_ANY;
