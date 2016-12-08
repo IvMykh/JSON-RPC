@@ -22,17 +22,20 @@ public:
         SHUTDOWN_BOTH       = 2
     };
 
-public:
+
     ClientSocket(const int serverPortNumber, const std::string& serverName);
     ~ClientSocket();
 
-    const int           ServerPortNumber() const;
-    const std::string&  ServerName() const;
+    const int           GetServerPortNumber() const;
+    const std::string&  GetServerName() const;
     const bool          IsSocketValid() const;
 
     void                Connect() const;
+
+    const int           SendRequest(const char* data, const int length) const;
+    const unsigned      ReceiveResponse() const;
+
     void                ShutDown(const int shutDownOption) const;
-    const int           Send(const char* clientRequest, const int messageLength) const;
 
 private:
     SOCKET              socketHandle_;
@@ -43,4 +46,4 @@ private:
 };
 
 
-#endif // CLIENT_SOCKET_H_
+#endif // !CLIENT_SOCKET_H_

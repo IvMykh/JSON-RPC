@@ -45,6 +45,8 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -66,11 +68,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="json_rpc_object_type.cpp" />
     <ClCompile Include="json_rpc_validator.cpp" />
     <ClCompile Include="lexer.cpp" />
     <ClCompile Include="non_terminal_node.cpp" />
     <ClCompile Include="parser.cpp" />
     <ClCompile Include="parse_tree_node.cpp" />
+    <ClCompile Include="server_app.cpp" />
     <ClCompile Include="validation_error_exception.cpp" />
     <ClCompile Include="server_main.cpp" />
     <ClCompile Include="server_socket.cpp" />
@@ -87,6 +91,7 @@
     <ClInclude Include="parser.h" />
     <ClInclude Include="parse_tree_node.h" />
     <ClInclude Include="parse_tree_visitor.h" />
+    <ClInclude Include="server_app.h" />
     <ClInclude Include="validation_error_exception.h" />
     <ClInclude Include="server_socket.h" />
     <ClInclude Include="server_socket_exception.h" />

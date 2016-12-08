@@ -45,6 +45,8 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -66,13 +68,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="client_app.cpp" />
     <ClCompile Include="client_socket.cpp" />
     <ClCompile Include="client_socket_exception.cpp" />
     <ClCompile Include="client_main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="client_app.h" />
     <ClInclude Include="client_socket.h" />
     <ClInclude Include="client_socket_exception.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="JSON-RPC Sample.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

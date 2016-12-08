@@ -15,6 +15,14 @@
 class ServerSocket
 {
 public:
+    enum ShutDownOptions
+    {
+        SHUTDOWN_RECEIVE    = 0,
+        SHUTDOWN_SEND       = 1,
+        SHUTDOWN_BOTH       = 2
+    };
+
+
     ServerSocket(const int serverPortNumber);
     ServerSocket(SOCKET socketHandle, const int serverPortNumber);
     
@@ -27,11 +35,14 @@ public:
     void                Listen(const int maxConnectionsCount) const;
 
     const ServerSocket  Accept() const;
-    const std::string   Receive(ServerSocket socket) const;
+    
+    void                ShutDown(const int shutDownOption) const;
+
+    const int           SendResponse(const unsigned& response) const;
+    const std::string   ReceiveRequest() const;
 
 private:
     void                constructSocket(SOCKET socketHandle);
-
 
 
     SOCKET              socketHandle_;
@@ -40,4 +51,4 @@ private:
     bool                isSocketValid_;
 };
 
-#endif // SERVER_SOCKET_H_
+#endif // !SERVER_SOCKET_H_

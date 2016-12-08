@@ -63,30 +63,53 @@ const ServerSocket ServerSocket::Accept() const
     return ServerSocket(newSHandle, serverPortNumber_);
 }
 
-const std::string ServerSocket::Receive(ServerSocket socket) const
+void ServerSocket::ShutDown(const int shutDownOption) const
 {
-    const size_t bufferSize = 10;
+    int shutdownResult = shutdown(socketHandle_, shutDownOption);
+
+    if (shutdownResult == SOCKET_ERROR)
+    {
+        throw ServerSocketException("Socket shutdown error occurred.");
+    }
+}
+
+const int ServerSocket::SendResponse(const unsigned& response) const
+{
+    int bytesSent = send(
+        socketHandle_, (char*)&response, sizeof(response), MSG_DONTROUTE);
+
+    if (bytesSent == SOCKET_ERROR)
+    {
+        throw ServerSocketException("Data sending error in socket occurred.");
+    }
+
+    return bytesSent;
+}
+
+const std::string ServerSocket::ReceiveRequest() const
+{
+    const size_t bufferSize = 100;
     char buffer[bufferSize];
 
     int bytesReceived;
     std::string message;
-    
-    do 
-    {   
-        memset(buffer, '\0', bufferSize);
-        bytesReceived = recv(socket.socketHandle_, buffer, bufferSize, 0);
 
-        if (bytesReceived == SOCKET_ERROR) 
+    do
+    {
+        memset(buffer, '\0', bufferSize);
+        bytesReceived = recv(socketHandle_, buffer, bufferSize, 0);
+
+        if (bytesReceived == SOCKET_ERROR)
         {
             throw ServerSocketException("Socket receiving data error occurred.");
         }
-        else 
+        else
         {
-            message.append(buffer, buffer + bufferSize);
+            message.append(buffer, buffer + bytesReceived);
         }
 
     } while (bytesReceived == bufferSize);
-        
+
     return message;
 }
 

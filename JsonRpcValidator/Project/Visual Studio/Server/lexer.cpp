@@ -51,6 +51,10 @@ const std::list<Token*> Lexer::Tokenize(const std::string& text) const
                 ++linePos;
                 continue;
 
+            case '\r':
+                ++linePos;
+                continue;
+
             default:
                 if (firstChar == '+' ||
                     firstChar == '-' ||
@@ -93,6 +97,7 @@ bool Lexer::isDelimiter(const char character) const
            character == '+' ||
            character == '-' ||
            character == '\n' ||
+           character == '\r' ||
            ('0' <= character && character <= '9');
 }
 

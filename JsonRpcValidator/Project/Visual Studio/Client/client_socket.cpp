@@ -1,8 +1,10 @@
 #include "client_socket.h"
 
 
+
 ClientSocket::ClientSocket(const int serverPortNumber, const std::string& serverName)
-    : serverPortNumber_(serverPortNumber),
+    : socketHandle_(0),
+      serverPortNumber_(serverPortNumber),
       serverName_(serverName),
       isSocketValid_(true)
 {
@@ -31,11 +33,11 @@ ClientSocket::~ClientSocket()
     closesocket(socketHandle_);
 }
 
-const int ClientSocket::ServerPortNumber() const
+const int ClientSocket::GetServerPortNumber() const
 {
     return serverPortNumber_;
 }
-const std::string& ClientSocket::ServerName() const
+const std::string& ClientSocket::GetServerName() const
 {
     return serverName_;
 }
@@ -55,6 +57,33 @@ void ClientSocket::Connect() const
         throw ClientSocketException("Socket connection error occurred.");
     }
 }
+
+const int ClientSocket::SendRequest(const char* data, const int length) const
+{
+    int bytesSent = send(socketHandle_, data, length, MSG_DONTROUTE);
+
+    if (bytesSent == SOCKET_ERROR)
+    {
+        throw ClientSocketException("Data sending error in socket occurred.");
+    }
+
+    return bytesSent;
+}
+
+const unsigned ClientSocket::ReceiveResponse() const
+{
+    unsigned response = 0;
+    int bytesReceived = recv(
+        socketHandle_, (char*)&response, sizeof(response), 0);
+
+    if (bytesReceived == SOCKET_ERROR)
+    {
+        throw ClientSocketException("Socket receiving data error occurred.");
+    }
+
+    return response;
+}
+
 void ClientSocket::ShutDown(const int shutDownOption) const
 {
     int shutdownResult = shutdown(socketHandle_, shutDownOption);
@@ -63,16 +92,4 @@ void ClientSocket::ShutDown(const int shutDownOption) const
     {
         throw ClientSocketException("Socket shutdown error occurred.");
     }
-}
-
-const int ClientSocket::Send(const char* clientRequest, const int messageLength) const
-{
-    int bytesSent = send(socketHandle_, clientRequest, messageLength, MSG_DONTROUTE);
-
-    if (bytesSent == SOCKET_ERROR)
-    {
-        throw ClientSocketException("Data sending error in socket occurred.");
-    }
-
-    return bytesSent;
 }
