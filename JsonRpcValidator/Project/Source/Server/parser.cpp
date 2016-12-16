@@ -1,6 +1,8 @@
-#include "Parser.h"
+#include "parser.h"
 
+#include <exception>
 #include <string>
+
 #include "validation_error_exception.h"
 
 
@@ -275,7 +277,7 @@ std::list<ParseTreeNode*> Parser::retrieveComplexObjectFrom(
     }
     else
     {
-        throw std::exception("Unexpected type of bracket."); 
+        throw ValidationErrorException(-1, "Unexpected type of bracket.");
     }
 
     ParseTreeNode* openNode = nodes.front();

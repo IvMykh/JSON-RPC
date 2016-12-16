@@ -6,6 +6,5 @@ int main()
 {
     RunApp();
     
-    system("pause");
     return 0;
 }

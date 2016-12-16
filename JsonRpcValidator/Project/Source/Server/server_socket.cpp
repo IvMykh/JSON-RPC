@@ -19,7 +19,11 @@ ServerSocket::ServerSocket(
 
 ServerSocket::~ServerSocket()
 {
+#ifdef __linux__
+    close(socketHandle_);
+#elif _WIN32
     closesocket(socketHandle_);
+#endif
 }
 
 const int ServerSocket::GetServerPortNumber() const
@@ -62,7 +66,12 @@ void ServerSocket::Listen(const int maxConnectionsCount) const
 const ServerSocket ServerSocket::Accept() const
 {
     sockaddr_in clientAddress;
+
+#ifdef __linux__
+    unsigned int sockAddrSize = sizeof(sockaddr_in);
+#elif _WIN32
     int sockAddrSize = sizeof(sockaddr_in);
+#endif
 
     SOCKET newSHandle = accept(socketHandle_,
         (sockaddr*)&clientAddress,

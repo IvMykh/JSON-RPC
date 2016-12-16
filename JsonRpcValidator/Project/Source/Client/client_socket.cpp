@@ -30,7 +30,11 @@ ClientSocket::ClientSocket(const int serverPortNumber, const std::string& server
 
 ClientSocket::~ClientSocket()
 {
+#ifdef __linux__
+    close(socketHandle_);
+#elif _WIN32
     closesocket(socketHandle_);
+#endif
 }
 
 const int ClientSocket::GetServerPortNumber() const

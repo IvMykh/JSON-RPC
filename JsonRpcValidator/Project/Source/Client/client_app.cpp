@@ -16,10 +16,10 @@ void RunApp()
     
     std::string sourceFilePath;
     std::cout << "Please, enter target JSON-RPC file path" << std::endl
-              << "[enter '.' for default file (\"" << kDefaultFilePath << "\")]:" 
+              << "[enter '.' for default file (\"" << kDefaultFilePath << "\")]:"
               << std::endl;
 
-    std::cout << std::endl 
+    std::cout << std::endl
               << "Your input: ";
     std::getline(std::cin, sourceFilePath);
 
@@ -55,12 +55,16 @@ void RunApp()
     catch (const std::exception& exception)
     {
         ShowStatus(exception.what(), true);
+
+#ifdef _WIN32
         WSACleanup();
+#endif
     }
 }
 
 const unsigned PerformCommunication(const std::vector<char>& dataToSend)
 {
+#ifdef _WIN32
     WSADATA wsaData;
 
     if (WSAStartup(MAKEWORD(2, 1), &wsaData) != 0)
@@ -68,6 +72,7 @@ const unsigned PerformCommunication(const std::vector<char>& dataToSend)
         throw ClientSocketException(
             "Initiating Winsock DLL error occurred.");
     }
+#endif
 
     const int kPortNumber = 5000;
     const char* kServerName = "127.0.0.1";
@@ -76,7 +81,9 @@ const unsigned PerformCommunication(const std::vector<char>& dataToSend)
 
     if (!socket.IsSocketValid())
     {
+#ifdef _WIN32
         WSACleanup();
+#endif
 
         throw ClientSocketException(
             "Socket is not valid, you cannot perform any communication.");
@@ -113,10 +120,10 @@ const std::vector<char> ReadFileBinary(const std::string& filePath)
 
     if (!sourceFileStream)
     {
-        const std::string errorMessage =
-            "Cannot open file \"" + filePath + "\" for reading.";
+        //const std::string errorMessage =
+        //    "Cannot open file \"" + filePath + "\" for reading.";
 
-        throw std::exception(errorMessage.c_str());
+        throw std::exception(); //std::exception(errorMessage.c_str());
     }
 
     return std::vector<char>(
@@ -129,7 +136,7 @@ void ShowStatus(const std::string message, const bool shouldSeparate)
     auto now = std::chrono::system_clock::now();
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
 
-    std::cout << "->  " << std::put_time(std::localtime(&in_time_t), "%X") 
+    std::cout << "->  " //<< std::put_time(std::localtime(&in_time_t), "%X")
               << "  " << message << std::endl;
 
     if (shouldSeparate)

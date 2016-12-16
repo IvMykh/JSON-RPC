@@ -2,6 +2,7 @@
 #define VALIDATION_ERROR_EXCEPTION_H_
 
 #include <exception>
+#include <string>
 
 
 
@@ -10,11 +11,13 @@ class ValidationErrorException :
 {
 public:
     ValidationErrorException(const int lineNumber, const char* msg = "");
-    
-    const int   GetLineNumber() const;
+
+    const int               GetLineNumber() const;
+    virtual const char*     what() const throw() override;
 
 private:
-    int         lineNumber_;
+    int                     lineNumber_;
+    std::string             message_;
 };
 
 #endif // !VALIDATION_ERROR_EXCEPTION_H_

@@ -21,8 +21,7 @@ enum class ValidationState
     ERROR_DATA_PROVIDED = 1 << 8,
 };
 
-
-using UnderlyingType = std::underlying_type_t <ValidationState>;
+typedef std::underlying_type<ValidationState>::type UnderlyingType;
 
 
 inline ValidationState operator | (

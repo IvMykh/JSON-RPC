@@ -17,6 +17,7 @@
 
 void RunApp()
 {
+#ifdef _WIN32
     WSADATA wsaData;
 
     if (WSAStartup(MAKEWORD(2, 1), &wsaData) != 0)
@@ -24,14 +25,16 @@ void RunApp()
         throw ServerSocketException(
             "Initiating Winsock DLL error occurred.");
     }
+#endif
 
     const int kPortNumber = 5000;
     ServerSocket socket(kPortNumber);
 
     if (!socket.IsSocketValid())
     {
+#ifdef _WIN32
         WSACleanup();
-
+#endif
         throw ServerSocketException(
             "Socket is not valid, you cannot perform any communication.");
     }
@@ -50,6 +53,8 @@ void RunApp()
         std::cout << exception.what() << std::endl;
         std::cout << "Server cannot be started" << std::endl
                   << std::endl;
+
+        return;
     }
 
     while (true)
@@ -76,7 +81,10 @@ void RunApp()
         catch (const ServerSocketException& exception)
         {
             std::cout << exception.what() << std::endl;
+
+#ifdef _WIN32
             WSACleanup();
+#endif
         }
 
         std::cout
@@ -133,7 +141,7 @@ void ShowStatus(const std::string message, const bool shouldSeparate)
     auto now = std::chrono::system_clock::now();
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
 
-    std::cout << "->  " << std::put_time(std::localtime(&in_time_t), "%X")
+    std::cout << "->  " //<< std::put_time(std::localtime(&in_time_t), "%X")
         << "  " << message << std::endl;
 
     if (shouldSeparate)
@@ -160,9 +168,9 @@ void LogValidationResult(
 
     auto now = std::chrono::system_clock::now();
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
-    auto dateTime = std::put_time(std::localtime(&in_time_t), "%c");
+    //auto dateTime = std::put_time(std::localtime(&in_time_t), "%c");
 
-    logFileStream << "Time:       " << dateTime << std::endl
+    logFileStream //<< "Time:       " << dateTime << std::endl
                   << "Client IP:  " << ip << std::endl
                   << "Result:     " << message << std::endl;
 

@@ -3,11 +3,17 @@
 
 
 ValidationErrorException::ValidationErrorException(const int lineNumber, const char* msg)
-    : exception(msg), lineNumber_(lineNumber)
+    : lineNumber_(lineNumber),
+      message_(msg)
 {
 }
 
 const int ValidationErrorException::GetLineNumber() const
 {
     return lineNumber_;
+}
+
+const char* ValidationErrorException::what() const throw()
+{
+    return message_.c_str();
 }

@@ -15,6 +15,5 @@ int main()
                   << std::endl;
     }
 
-    system("pause");
     return 0;
 }

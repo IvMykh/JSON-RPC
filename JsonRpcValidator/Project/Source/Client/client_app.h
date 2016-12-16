@@ -2,7 +2,7 @@
 #define CLIENT_APP_H_
 
 #include <vector>
-
+#include <string>
 
 
 void            RunApp();

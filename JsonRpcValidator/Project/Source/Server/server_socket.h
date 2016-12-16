@@ -2,14 +2,37 @@
 #define SERVER_SOCKET_H_
 
 
-#include <winsock.h>
-#include <string>
 
+#ifdef __linux__
+    #include <arpa/inet.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <unistd.h>
+    #include <errno.h>
+    #include <string.h>
+    #include <sys/types.h>
+    #include <time.h>
+
+#elif _WIN32
+    #include <winsock.h>
+
+    #pragma comment (lib, "Ws2_32.lib")
+    #pragma comment (lib, "Mswsock.lib")
+    #pragma comment (lib, "AdvApi32.lib")
+
+#endif
+
+#ifdef __linux__
+    #define SOCKET int
+    #define SOCKET_ERROR -1
+    #define INVALID_SOCKET -1
+#endif
+
+
+
+#include <string>
 #include "server_socket_exception.h"
 
-#pragma comment (lib, "Ws2_32.lib")
-#pragma comment (lib, "Mswsock.lib")
-#pragma comment (lib, "AdvApi32.lib")
 
 
 class ServerSocket
