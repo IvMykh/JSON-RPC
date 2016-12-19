@@ -49,7 +49,24 @@ void ServerSocket::Bind() const
 
     if (bindResult != 0)
     {
-        throw ServerSocketException("Socket binding error occurred.");
+#ifdef __linux__
+        int yes = 1;
+#elif _WIN32
+        char yes = '1';
+#endif
+
+        int setsockoptResult = setsockopt(
+            socketHandle_,
+            SOL_SOCKET,
+            SO_REUSEADDR,
+            &yes,
+            sizeof yes);
+
+
+        if (setsockoptResult == -1)
+        {
+            throw ServerSocketException("Socket binding error occurred.");
+        }
     }
 }
 

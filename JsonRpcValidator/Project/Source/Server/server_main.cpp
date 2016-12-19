@@ -15,5 +15,9 @@ int main()
                   << std::endl;
     }
 
+    std::cout << std::endl 
+              << "Press <Enter> to exit...";
+    std::getchar();
+    
     return 0;
 }
