@@ -2,12 +2,11 @@
 
 #include <iostream>
 #include <fstream>
-#include <iomanip>
-#include <chrono>
 #include <ctime>
 
 #include "client_socket.h"
 #include "descriptive_exception.h"
+
 
 
 void RunApp()
@@ -133,10 +132,19 @@ const std::vector<char> ReadFileBinary(const std::string& filePath)
 
 void ShowStatus(const std::string message, const bool shouldSeparate)
 {
-    auto now = std::chrono::system_clock::now();
-    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+    time_t rawtime;
+    tm* timeinfo;
 
-    std::cout << "->  " //<< std::put_time(std::localtime(&in_time_t), "%X")
+    const int bufferSize = 80;
+    char buffer[bufferSize];
+
+    time (&rawtime);
+    timeinfo = localtime(&rawtime);
+
+    strftime(buffer, bufferSize, "%d/%m/%Y %I:%M:%S", timeinfo);
+    std::string dateTimeString(buffer);
+
+    std::cout << "->  " << dateTimeString
               << "  " << message << std::endl;
 
     if (shouldSeparate)
