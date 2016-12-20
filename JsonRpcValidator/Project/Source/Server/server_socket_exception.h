@@ -3,21 +3,15 @@
 
 
 
-#include <exception>
-#include <string>
+#include "descriptive_exception.h"
 
 
 
 class ServerSocketException
-    : public std::exception
+    : public DescriptiveException
 {
 public:
     ServerSocketException(const char* message);
-
-    virtual const char* what() const throw() override;
-
-private:
-    std::string     message_;
 };
 
 #endif // SERVER_SOCKET_EXCEPTION_H_

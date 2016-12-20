@@ -7,7 +7,7 @@
 #include <ctime>
 
 #include "client_socket.h"
-
+#include "descriptive_exception.h"
 
 
 void RunApp()
@@ -120,10 +120,10 @@ const std::vector<char> ReadFileBinary(const std::string& filePath)
 
     if (!sourceFileStream)
     {
-        //const std::string errorMessage =
-        //    "Cannot open file \"" + filePath + "\" for reading.";
+        const std::string errorMessage =
+            "Cannot open file \"" + filePath + "\" for reading.";
 
-        throw std::exception(); //std::exception(errorMessage.c_str());
+        throw DescriptiveException(errorMessage.c_str());
     }
 
     return std::vector<char>(
