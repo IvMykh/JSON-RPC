@@ -2,9 +2,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <chrono>
 #include <ctime>
-#include <iomanip>
 #include <algorithm>
 
 #include "server_socket.h"
@@ -138,11 +136,20 @@ const unsigned PerformValidation(
 
 void ShowStatus(const std::string message, const bool shouldSeparate)
 {
-    auto now = std::chrono::system_clock::now();
-    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+    time_t rawtime;
+    tm* timeinfo;
 
-    std::cout << "->  " //<< std::put_time(std::localtime(&in_time_t), "%X")
-        << "  " << message << std::endl;
+    const int bufferSize = 80;
+    char buffer[bufferSize];
+
+    time (&rawtime);
+    timeinfo = localtime(&rawtime);
+
+    strftime(buffer, bufferSize, "%d/%m/%Y %I:%M:%S", timeinfo);
+    std::string dateTimeString(buffer);
+
+    std::cout << "->  " << dateTimeString
+              << "  " << message << std::endl;
 
     if (shouldSeparate)
     {
@@ -166,11 +173,19 @@ void LogValidationResult(
         return;
     }
 
-    auto now = std::chrono::system_clock::now();
-    auto in_time_t = std::chrono::system_clock::to_time_t(now);
-    //auto dateTime = std::put_time(std::localtime(&in_time_t), "%c");
+    time_t rawtime;
+    tm* timeinfo;
 
-    logFileStream //<< "Time:       " << dateTime << std::endl
+    const int bufferSize = 80;
+    char buffer[bufferSize];
+
+    time (&rawtime);
+    timeinfo = localtime(&rawtime);
+
+    strftime(buffer, bufferSize, "%d/%m/%Y %I:%M:%S", timeinfo);
+    std::string dateTimeString(buffer);
+
+    logFileStream << "Time:       " << dateTimeString << std::endl
                   << "Client IP:  " << ip << std::endl
                   << "Result:     " << message << std::endl;
 

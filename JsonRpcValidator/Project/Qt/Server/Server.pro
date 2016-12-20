@@ -22,7 +22,8 @@ SOURCES += \
     ../../Source/Server/server_socket_exception.cpp \
     ../../Source/Server/token.cpp \
     ../../Source/Server/validation_error_exception.cpp \
-    ../../Source/Server/visualize_tree_visitor.cpp
+    ../../Source/Server/visualize_tree_visitor.cpp \
+    ../../Source/Common/descriptive_exception.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -36,6 +37,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 INCLUDEPATH += ./../../Source/Server/
+INCLUDEPATH += ./../../Source/Common/
 
 HEADERS += \
     ../../Source/Server/json_rpc_object_type.h \
@@ -46,11 +48,11 @@ HEADERS += \
     ../../Source/Server/parse_tree_node.h \
     ../../Source/Server/parse_tree_visitor.h \
     ../../Source/Server/parser.h \
-    #../../Source/Server/server_app.h \
-    #../../Source/Server/server_socket.h \
+    ../../Source/Server/server_app.h \
     ../../Source/Server/server_socket_exception.h \
     ../../Source/Server/token.h \
     ../../Source/Server/validation_error_exception.h \
     ../../Source/Server/validation_state.h \
     ../../Source/Server/visualize_tree_visitor.h \
-    ../../Source/Server/server_socket.h
+    ../../Source/Server/server_socket.h \
+    ../../Source/Common/descriptive_exception.h
