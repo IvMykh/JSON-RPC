@@ -6,7 +6,7 @@
 int main()
 {
     RunApp();
-    
+
     std::cout << std::endl
         << "Press <Enter> to exit...";
     std::getchar();
