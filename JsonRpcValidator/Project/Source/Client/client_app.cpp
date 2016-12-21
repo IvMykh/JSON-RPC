@@ -34,8 +34,12 @@ void RunApp()
     try
     {
         ShowStatus("Reading file \"" + sourceFilePath + "\" ...");
-        auto bytesToSend = ReadFileBinary(sourceFilePath);
-        ShowStatus("File \"" + sourceFilePath + "\" has been read successfully.", true);
+        
+        std::vector<char> bytesToSend;
+        ReadFileBinary(sourceFilePath, bytesToSend);        
+        ShowStatus(
+            "File \"" + sourceFilePath + "\" has been read successfully.", 
+            true);
 
         const unsigned response = PerformCommunication(bytesToSend);
 
@@ -113,7 +117,8 @@ const unsigned PerformCommunication(const std::vector<char>& dataToSend)
     return response;
 }
 
-const std::vector<char> ReadFileBinary(const std::string& filePath)
+void ReadFileBinary(
+    const std::string& filePath, std::vector<char>& destination)
 {
     std::ifstream sourceFileStream(filePath, std::ios::binary);
 
@@ -125,7 +130,7 @@ const std::vector<char> ReadFileBinary(const std::string& filePath)
         throw DescriptiveException(errorMessage.c_str());
     }
 
-    return std::vector<char>(
+    destination.assign(
         std::istreambuf_iterator<char>(sourceFileStream),
         std::istreambuf_iterator<char>());
 }
