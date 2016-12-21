@@ -4,13 +4,26 @@
 
 const std::string GetJsonPrcObjectTypeString(const JsonRpcObjectType type)
 {
+    std::string description;
+
     switch (type)
     {
-    case JsonRpcObjectType::REQUEST:        return "Request";
-    case JsonRpcObjectType::RESPONSE:       return "Response";
-    case JsonRpcObjectType::BATCH_REQUEST:  return "Batch Request";
-    case JsonRpcObjectType::BATCH_RESPONSE: return "Batch Response";
+    case JsonRpcObjectType::REQUEST:
+        description = "Request"; 
+        break;
+    case JsonRpcObjectType::RESPONSE:
+        description = "Response"; 
+        break;
+    case JsonRpcObjectType::BATCH_REQUEST:
+        description = "Batch Request";
+        break;
+    case JsonRpcObjectType::BATCH_RESPONSE:
+        description = "Batch Response"; 
+        break;
 
-    default: return "<unexpected>";
+    default: 
+        description = "<unexpected>";
     }
+
+    return description;
 }
