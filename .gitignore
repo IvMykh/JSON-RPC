@@ -272,6 +272,7 @@ __pycache__/
 *.pyc
 
 # Cake - Uncomment if you are using it
+<<<<<<< HEAD
 # tools/
 
 
@@ -282,3 +283,6 @@ build-*/
 # My Exceptions.
 Materials/
 JsonRpcValidator.rar
+=======
+# tools/
+>>>>>>> b6f5e0a064e9f98dabab969b69ce74c3a88990eb
